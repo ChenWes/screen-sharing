@@ -18,12 +18,19 @@ export default function JoinPage() {
     const { toast } = useToast();
 
     useEffect(() => {
+        /**
+         * 通过参数获取房间ID
+         */
         const params = new URLSearchParams(window.location.search);
         const roomFromUrl = params.get("room");
         if (roomFromUrl) {
             setRoomId(roomFromUrl);
         }
 
+        /**
+         * 退出函数
+         * 清除peer
+         */
         return () => {
             if (peerRef.current) {
                 peerRef.current.destroy();
@@ -33,13 +40,24 @@ export default function JoinPage() {
     }, []);
 
     useEffect(() => {
+        /**
+         * 当有数据流，则使用播放器直接播放数据流
+         */
         if (videoRef.current && activeStream) {
             videoRef.current.srcObject = activeStream;
             videoRef.current.play().catch(console.error);
         }
     }, [activeStream]);
 
+    /**
+     * 加入房间
+     * @param roomIdToJoin
+     * @returns
+     */
     function joinRoom(roomIdToJoin: string = roomId) {
+        /**
+         * 房间ID判断
+         */
         if (!roomIdToJoin.trim()) {
             toast({
                 title: "Room code required",
@@ -49,14 +67,29 @@ export default function JoinPage() {
             return;
         }
 
+        /**
+         * 连接状态
+         */
         setIsConnecting(true);
 
+        /**
+         * 生成peer对象
+         */
         const peer = new Peer({ debug: 2 });
         peerRef.current = peer;
 
+        /**
+         * peer打开事件
+         */
         peer.on("open", () => {
+            /**
+             * 创建连接
+             */
             const connection = peer.connect(roomIdToJoin);
 
+            /**
+             * 连接打开事件
+             */
             connection.on("open", () => {
                 toast({
                     title: "Connected!",
@@ -64,13 +97,26 @@ export default function JoinPage() {
                 });
             });
 
+            /**
+             * 拨打事件
+             */
             peer.on("call", (call) => {
+                /**
+                 * 应答
+                 */
                 call.answer();
+
+                /**
+                 * 数据流
+                 */
                 call.on("stream", (remoteStream) => {
                     setActiveStream(remoteStream);
                 });
             });
 
+            /**
+             * 连接断开事件
+             */
             connection.on("close", () => {
                 setIsConnecting(false);
                 setRoomId("");
@@ -83,9 +129,16 @@ export default function JoinPage() {
             });
         });
 
+        /**
+         * peer错误事件
+         */
         peer.on("error", (err) => {
             console.error("Peer error:", err);
             setIsConnecting(false);
+
+            /**
+             * 提示
+             */
             toast({
                 title: "Connection failed",
                 description: "Could not connect to the room. Please check the room code and try again.",

@@ -19,8 +19,14 @@ export default function HostPage() {
     const { toast } = useToast();
     const router = useRouter();
 
+    /**
+     * 事件加载
+     */
     useEffect(() => {
         try {
+            /**
+             * 连接
+             */
             const newPeer = new Peer({ debug: 2 });
             setPeer(newPeer);
 
@@ -36,6 +42,10 @@ export default function HostPage() {
                 });
             });
 
+            /**
+             * 退出函数
+             * 清除peer
+             */
             return () => {
                 newPeer.destroy();
             };
@@ -45,10 +55,19 @@ export default function HostPage() {
     }, []);
 
     useEffect(() => {
+        /**
+         * 连接对象为空则返回
+         */
         if (!peer) return;
 
         if (!activeStream) {
+            /**
+             * 当还没有发送流
+             */
             if (connections.length > 0) {
+                /**
+                 * 提醒
+                 */
                 toast({
                     title: "New viewer connected",
                     description: "Click to start sharing your screen.",
@@ -58,10 +77,18 @@ export default function HostPage() {
                             altText="Start sharing"
                             onClick={async () => {
                                 try {
+                                    /**
+                                     * 开始分享桌面
+                                     * 视频及音频都打开
+                                     */
                                     const stream = await navigator.mediaDevices.getDisplayMedia({
                                         video: true,
                                         audio: true
                                     });
+
+                                    /**
+                                     * 设置数据流
+                                     */
                                     setActiveStream(stream);
                                 } catch (err) {
                                     console.error("Screen sharing error:", err);
@@ -78,7 +105,13 @@ export default function HostPage() {
                 });
             }
         } else {
+            /**
+             * 当已经开始发送流
+             */
             connections.forEach((connection) => {
+                /**
+                 * 连接
+                 */
                 const call = peer.call(connection, activeStream);
 
                 activeStream.getTracks()[0].onended = () => {
@@ -89,12 +122,21 @@ export default function HostPage() {
         }
     }, [peer, toast, activeStream, connections]);
 
+    /**
+     * 断开流
+     */
     function endSession() {
+        /**
+         * 如果有流，则停止流
+         */
         if (activeStream) {
             activeStream.getTracks().forEach((track) => track.stop());
             setActiveStream(null);
         }
 
+        /**
+         * 关闭peer对象
+         */
         if (peer) {
             peer.destroy();
             setPeer(null);
@@ -108,6 +150,9 @@ export default function HostPage() {
             description: "Your screen sharing session has been terminated."
         });
 
+        /**
+         * 回到首页
+         */
         router.push("/");
     }
 

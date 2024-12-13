@@ -91,3 +91,16 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 镜像编译
+
+```bash
+# 编译镜像
+docker build -t registry.cn-hangzhou.aliyuncs.com/weschan/cf-screen-sharing:20241213.1 .
+
+# 上传镜像
+docker push registry.cn-hangzhou.aliyuncs.com/weschan/cf-screen-sharing:20241213.1
+
+# 下载镜像
+docker pull registry.cn-hangzhou.aliyuncs.com/weschan/cf-screen-sharing:20241213.1
+```

@@ -1,4 +1,4 @@
-import { Clarity } from "@/components/Clarity";
+// import { Clarity } from "@/components/Clarity";
 import { Toaster } from "@/components/ui/toaster";
 
 import type { Metadata } from "next";
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         .
                     </footer>
                 </main>
-                <Clarity />
+                {/* <Clarity /> */}
                 <Toaster />
             </body>
         </html>
